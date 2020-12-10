@@ -1,0 +1,105 @@
+<html>
+  <head>
+    <script type="text/javascript">
+
+    window.addEventListener('load', function(){
+
+        let video = document.getElementById('thevideo');
+        let videobox = document.getElementById('videobox');
+        let imgbox = document.getElementById('imgbox');
+        console.log(video);
+
+        let playbutton = document.getElementById('playbutton');
+        playbutton.addEventListener("click", function(){
+            if(playbutton.click){
+            video.play();
+            imgbox.setAttribute('style','display:none');//开始播放 隐藏GIF
+          }
+        })
+
+        let pausebutton = document.getElementById('pausebutton');
+        pausebutton.addEventListener("click", function(){
+          if(pausebutton.click){
+            video.pause();
+            imgbox.setAttribute('style','display:flex');//暂停播放 显示GIF
+          }
+
+        })
+     })
+
+    </script>
+
+        <body style="background-color:#FBFBFB;">
+
+    <style>
+        html {
+         overflow: hidden;
+         height: 100%;
+        }
+        p{text-align: center;}
+        #videobox{
+          width: 100%;
+          position: relative;
+        }
+        #videobox video{
+          width: 100%;
+        }
+        *{
+          margin: 0;
+          padding: 0;
+        }
+        #imgbox{
+          width: 100%;height: 100%;
+          position: absolute;
+          background: #fff;
+          top: 0;
+          left: 0;
+          text-align: center;
+          display: none;
+          justify-content: center;
+          flex-direction: column;
+        }
+        #imgbox img{
+          margin:0 auto;
+        }
+    </style>
+
+
+  </head>
+
+  <body>
+    <p>
+    <input type="button" value="Mommy!"
+              style="color:black;
+              background-color:#FBFBFB;
+              font-family:courier;
+              font-size:160%;
+              border:2px solid Tomato;
+              text-decoration:none;"
+              id="playbutton">
+    <input type="button" value="Stop!"
+              style="color:black;
+              background-color:#FBFBFB;
+              font-family:courier;
+              font-size:160%;
+              border:2px solid DodgerBlue;
+              text-decoration:none;"
+              id="pausebutton">
+    </p>
+
+    <div id="videobox">
+      <video loop src="baby on web both.mp4"
+                     style="display:block; margin: 0 auto;"
+                     id="thevideo"></video>
+      <div id="imgbox">
+        <img src="./giphy.gif" style="width:100%;"/>
+      </div>
+    </div>
+
+  </body>
+
+</html>
+<!--https://www.youtube.com/watch?v=VlwSz2dXK_8&t=175s
+https://www.youtube.com/watch?v=pQN-pnXPaVg&list=WL&index=4&t=5340s
+https://www.youtube.com/watch?v=6j7zae27tfg
+https://www.youtube.com/watch?v=4MFnSs-ddHc-->

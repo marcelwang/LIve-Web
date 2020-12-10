@@ -1,0 +1,56 @@
+*{
+  margin: 0;
+}
+
+html{
+  overflow: hidden;
+  height: 100%;
+}
+
+
+section{
+  font-size: 10px;
+  font-family: courier;
+  height: 100vh;
+  color: #fff;
+  background:linear-gradient(-45deg, #3A8FB7, #81C7D4, #268785) ;
+
+}
+
+p{
+  position: absolute;
+  font-size: 25px;
+  font-family: courier;
+
+}
+#box{
+  text-align: center;
+  position: relative;
+  top:300px;
+
+}
+
+#message{
+  color: black;
+  font-family: courier;
+  font-size: 13;
+  text-align: center;
+  border: none;
+  border-radius: 10px;
+  width:230px;
+  height:30px;
+
+}
+
+#sendbutton{
+  color: black;
+  background-color:none;
+  font-family: courier;
+  font-size: 15;
+  border: 2px solid pink;
+  border-radius: 5px;
+  text-decoration:none;
+  background-color: none;
+  top: 10%;
+  left: 60%;
+}

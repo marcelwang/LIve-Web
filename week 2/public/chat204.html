@@ -1,0 +1,57 @@
+<html>
+	<head>
+		<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+		<script type="text/javascript">
+
+
+		     var randomStyle = function(){
+                        var top = 'top:' + Math.random() * 100 + 'vh;';
+			var left = 'left:' + Math.random() * 100 + 'vw;';
+
+			var color = 'color: rgb(' + Math.random() * 255 + ',' + Math.random() * 255 + ',' + Math.random() * 255 + ');'
+
+			return top + left + color;
+		    }
+
+			var socket = io.connect();
+
+		     socket.on('connect', function() {
+				console.log("Connected");
+			});
+
+			// Receive from any event
+		     socket.on('chatmessage', function (data) {
+				console.log(data);
+				document.getElementById('words').innerHTML += '<p style="position: absolute;' + randomStyle() + '">' + data + '</p>';
+			});
+
+
+		     var sendmessage = function(message) {
+				document.getElementById('words').innerHTML += '<p style="' + randomStyle() + '">' + message + '</p>';
+
+				console.log("chatmessage: " + message);
+				socket.emit('chatmessage', message);
+	             };
+
+
+		</script>
+	</head>
+
+	<link rel="stylesheet" href="style.css">
+
+  <body>
+	  <section>
+      <div id="words">
+
+      </div>
+
+        <div id="box">
+          <input type="text" id="message" name="message">
+          <input type="submit" value="send"
+              id="sendbutton"
+			      	onclick="sendmessage(document.getElementById('message').value);">
+        </div>
+    </section>
+  </body>
+
+</html>

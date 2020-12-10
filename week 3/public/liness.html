@@ -1,0 +1,253 @@
+<html>
+  <head>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <style>
+    /* to remove the top and left whitespace */
+    * { margin:0; padding:0; }
+    /* just to be sure these are full screen*/
+    html, body { width:100%; height:100%; }
+    /* To remove the scrollbars */
+    canvas { display:block; }
+
+    </style>
+    <script type="text/javascript">
+
+
+    //var socket = io.connect();
+      let socket = io();
+		  socket.on('connect', function () {
+  			console.log("Connected");
+  		});
+
+      let otherPeople = [];
+
+
+
+      window.addEventListener("load", function () {
+        let canvas = document.getElementById("thecanvas");
+        let ctx = canvas.getContext("2d");
+
+        let points = [];
+        // let otherpoints = [];
+        let mouseX;
+        let mouseY;
+
+        var width = window.innerWidth;
+        var height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+
+        canvas.addEventListener("mousedown", mousePressed);
+        canvas.addEventListener("mousemove", mouseMove);
+
+
+
+        function mousePressed(evt) {
+
+          var datatosend = {
+            x: mouseX,
+            y: mouseY,
+
+          }
+          //send mouse position when press mouse
+          socket.emit('drawing',datatosend );
+
+
+          points.push({
+            x: mouseX,
+            y: mouseY,
+          });
+        }
+
+        function mouseMove(evt) {
+          mouseX = evt.x;
+          mouseY = evt.y;
+        }
+
+///////////////////////////////////////
+
+//Somebody else draws
+//in other's drawing, do i need to copy the content in my draw function and paste here?
+        socket.on('drawing', drawOther);
+        function drawOther(data){
+          console.log(data);
+
+
+          // find if this person exist before
+          let index = otherPeople.findIndex((e) => e.id === data.id);
+
+          if (index > -1) {
+            // exist
+            otherPeople[index].points.push(data.point)
+          } else {
+            // not exist
+            otherPeople.push({
+              id: data.id,
+              points: [data.point]
+            })
+          }
+
+          //use data (data.x & data.y to draw)
+          // otherpoints.push(data);
+
+//           //ctx.fillStyle = "#FFFFFF";
+//           //ctx.fillRect(0, 0, canvas.width, canvas.height);
+//
+// //is it right place to emit socket?
+// //and is the sending content right?
+//           // let datatosend = {
+//           //    x: evt.x,
+//           //    y: evt.y
+//           // }
+//           //
+//           // socket.emit('drawing',datatosend);
+//
+//
+//           for (let i = 0; i < otherpoints.length - 1; i++) {
+//             // for(let u = 1; u < 100; u++){
+//             //    ctx.lineWidth = u;
+//             // }
+//             ctx.lineWidth = 20;
+//             ctx.beginPath();
+//             ctx.lineCap='round';
+//             ctx.moveTo(otherpoints[i].x, otherpoints[i].y);
+//             ctx.lineTo(otherpoints[i + 1].x, otherpoints[i + 1].y);
+//             ctx.closePath();
+//             ctx.stroke();
+//           }
+//
+//           if (otherpoints.length > 0) {
+//             for(let u = 1; u < 50; u++){
+//                ctx.lineWidth = u;
+//             }
+//             ctx.beginPath();
+//             ctx.lineCap='round';
+//             ctx.moveTo(
+//               otherpoints[otherpoints.length - 1].x,
+//               otherpoints[otherpoints.length - 1].y
+//             );
+//             //ctx.lineTo(mouseX, mouseY);
+//             ctx.closePath();
+//             ctx.stroke();
+//           }
+
+        }
+
+
+///////////////////////////////////////
+//add a draw to hold all
+//I draw
+
+
+          function resizeCanvas() {
+             canvas.width = window.innerWidth;
+             canvas.height = window.innerHeight;
+
+             draw();
+             }
+             resizeCanvas();
+
+
+
+          function draw() {
+
+            ctx.fillStyle = "#FFFFFF";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+//is it right place to emit socket?
+//and is the sending content right?
+            // let datatosend = {
+            //    x: evt.x,
+            //    y: evt.y
+            // }
+            //
+            // socket.emit('drawing',datatosend);
+
+
+            for (let i = 0; i < points.length - 1; i++) {
+              ctx.lineWidth = 20;
+              ctx.beginPath();
+              ctx.lineCap='round';
+              ctx.moveTo(points[i].x, points[i].y);
+              ctx.lineTo(points[i + 1].x, points[i + 1].y);
+              ctx.closePath();
+              ctx.stroke();
+            }
+
+
+            if (points.length > 0) {
+              for(let u = 1; u < 50; u++){
+                 ctx.lineWidth = u;
+              }
+              ctx.beginPath();
+              ctx.lineCap='round';
+              ctx.moveTo(
+                points[points.length - 1].x,
+                points[points.length - 1].y
+              );
+              ctx.lineTo(mouseX, mouseY);
+              ctx.closePath();
+              ctx.stroke();
+            }
+
+                      //ctx.fillStyle = "#FFFFFF";
+                      //ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            //is it right place to emit socket?
+            //and is the sending content right?
+                      // let datatosend = {
+                      //    x: evt.x,
+                      //    y: evt.y
+                      // }
+                      //
+                      // socket.emit('drawing',datatosend);
+
+                      for (let j = 0; j < otherPeople.length; j++) {
+                        let otherpoints = otherPeople[j].points;
+
+                        for (let i = 0; i < otherpoints.length - 1; i++) {
+                          // for(let u = 1; u < 100; u++){
+                          //    ctx.lineWidth = u;
+                          // }
+                          ctx.lineWidth = 20;
+                          ctx.beginPath();
+                          ctx.lineCap='round';
+                          ctx.moveTo(otherpoints[i].x, otherpoints[i].y);
+                          ctx.lineTo(otherpoints[i + 1].x, otherpoints[i + 1].y);
+                          ctx.closePath();
+                          ctx.stroke();
+                        }
+
+                        if (otherpoints.length > 0) {
+                          for(let u = 1; u < 50; u++){
+                            ctx.lineWidth = u;
+                          }
+                          ctx.beginPath();
+                          ctx.lineCap='round';
+                          ctx.moveTo(
+                            otherpoints[otherpoints.length - 1].x,
+                            otherpoints[otherpoints.length - 1].y
+                          );
+                          //ctx.lineTo(mouseX, mouseY);
+                          ctx.closePath();
+                          ctx.stroke();
+                        }
+                      }
+
+
+
+
+            window.requestAnimationFrame(draw);
+          }
+
+          draw();
+
+
+      });
+
+    </script>
+  </head>
+  <body>
+    <canvas id="thecanvas">No Canvas?</canvas>
+  </body>
+</html>

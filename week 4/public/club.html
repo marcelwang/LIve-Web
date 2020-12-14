@@ -1,0 +1,261 @@
+<html>
+  <head>
+
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <meta charset="utf-8" />
+    <script language="javascript" type="text/javascript" src="path/to/p5.dom.js"></script>
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript">
+
+      //   function preload(){
+      //     myMusic = loadSound("gq.mp3");
+      //   }
+      //   function setup(){
+      //     if (playMode == false){
+      //       myMusic.play();
+      //   playMode = true;
+      //   myMusic.loop();
+      //   playMode = false;
+      // }
+      //   }
+
+        var socket = io.connect();
+
+        let people = [];//many clients
+        let myfilter = 0;//initial image without any filter
+
+        //initial location
+        //only put number here, unit is % (defined in the "receiveImage")
+        //here the x, y is the left-top position of image instead of center location
+        let myLocation = {
+          x: 42,
+          y: 42
+        }
+
+        socket.on('connect', function() {
+    				console.log("Connected");
+    			});
+
+
+
+//BELOW:play the music
+          // 2. This code loads the IFrame Player API code asynchronously.
+          var tag = document.createElement("script");
+
+          tag.src = "https://www.youtube.com/iframe_api";
+          var firstScriptTag = document.getElementsByTagName("script")[0];
+          firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+          // 3. This function creates an <iframe> (and YouTube player)
+          //    after the API code downloads.
+          var player;
+          function onYouTubeIframeAPIReady() {
+            // new is a function that include getElementById('player')
+            player = new YT.Player("player", {
+              videoId: "BubwLnPcQjc",
+              playerVars: { autoplay: 1, mute: 1 },
+            });
+
+            player.getIframe().style.display = 'none';
+          }
+
+          document.onkeydown = function (event) {
+            console.log("unmuted");
+            player.unMute();
+          };
+          document.onclick = function (event) {
+            console.log("unmuted");
+            player.unMute();
+          }
+//ABOVE: play the music
+
+
+
+       window.addEventListener('load', function(){
+
+         // let audio = document.getElementById('theaudio');
+
+         let video = document.getElementById('myvideo');
+         let canvas = document.getElementById('mycanvas');
+         // let img = document.getElementById('myimage')
+         let ctx = canvas.getContext('2d');
+
+
+         // Constraints - what do we want?
+         let constraints = { audio: false, video: true }
+
+         // Prompt the user for permission, get the stream
+         navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
+         	/* Use the stream */
+
+	        // Attach to our video object
+  	         video.srcObject = stream;
+
+  	       // Wait for the stream to load enough to play
+  	         video.onloadedmetadata = function(e) {
+  		           video.play();//start to collect video
+                 draw();//call draw function
+                 //video.play() and draw() are necessary
+                 //set them display: none---the location of them is also hidden
+  	         };
+         })
+
+          .catch(function(err) {
+              /* Handle the error */
+             alert(err);
+            });
+
+
+
+
+
+        function draw(){
+              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            //  ctx2.drawImage(video, 0, 0, canvas2.width, canvas2.height);
+
+            //all the things that we need to send to server
+            //things that always change and need to be shown to others
+            //image: change two frames everysecond
+            //filter:we need to see others filter is changed when other clients click
+            //myfilter here is a number:1 or 2 or 3....
+            //location: same as above
+              let datatosend = {
+                //get each frame this function:canvas.toDataURL
+                image: canvas.toDataURL(),
+                filter: myfilter,
+                location: myLocation
+              }
+              //datatosend is packaging all to server
+              socket.emit('sendImage', datatosend);
+
+              // number smaller--refresh faster
+              //window.requestAnimationFrame(draw);
+              window.setTimeout(draw, 500);
+            }
+
+
+
+
+//change filter by clicking buttons
+            // huebutton equals "1", so send "1" to server side
+            let huebutton = document.getElementById("huebutton");
+            huebutton.addEventListener("click", function () {
+              myfilter = 1;
+              //why 1?
+              //img.setAttribute("class", "filter" + data.filter); -----is the reason that set myfilter--1
+              //data.filter is a number
+            });
+
+            let graybutton = document.getElementById("graybutton");
+            graybutton.addEventListener("click", function () {
+              myfilter = 2;
+            });
+
+            let invertbutton = document.getElementById("invertbutton");
+            invertbutton.addEventListener("click", function () {
+              myfilter = 3;
+            });
+
+            let contrastbutton = document.getElementById("contrastbutton");
+            contrastbutton.addEventListener("click", function () {
+              myfilter = 4;
+            });
+
+            let sepiabutton = document.getElementById("sepiabutton");
+            sepiabutton.addEventListener("click", function () {
+              myfilter = 5;
+            });
+
+
+
+
+//move by clicking keys
+        document.onkeydown = function(event) {
+              console.log(event.key)
+              if (event.key === 'a') {
+                myLocation.x -= 10;
+              }
+              if(event.key ==='d'){
+                myLocation.x += 10;
+              }
+              if(event.key ==='w'){
+                myLocation.y -= 10;
+              }
+              if(event.key ==='s'){
+                myLocation.y += 10;
+              }
+            }
+
+
+
+
+// Receive a message
+      	socket.on('receiveImage', function(data) {
+              //here, receive all the stuffs in datatosend in server side
+              //data.xxxxx can be delared here like 'let x ' and 'let y'
+              //if data.xxx is short and not used often, it's not neccessary to delare here.it can be used directly below
+              // let image = data.image;
+              // let id = data.id;
+              let x = data.location.x;
+              let y = data.location.y;
+
+              //here create the image(video)
+              //why img? single frame-single image and image is refreshed everysecond
+              let img = document.getElementById(data.id);
+              //if img==true (receive the img)
+              if (img) {
+                  console.log(data.location);
+                  //let image(just received) become its source
+                  //img.src is changing twice everysecond
+                  img.src = data.image;
+                  img.style.left = x + '%';
+                  img.style.top =  y + '%';
+                  img.setAttribute("class", "filter" + data.filter);//change the filter: data.filter is a number
+              } else {
+                //if img==false (doesn't reveice)
+                  let person = new Image();
+                  person.setAttribute("id", data.id);
+                  person.src = data.image;
+                  person.style.position = 'absolute';
+                  document.body.appendChild(person);
+                  }
+      		  	});
+
+
+       });
+
+    </script>
+  </head>
+
+  <body>
+      <div id="player"></div>
+
+    <!-- <iframe style="display: none;" width="560" height="315" src="https://www.youtube.com/embed/BubwLnPcQjc?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
+
+    <!-- <audio controls>
+       <source src="gq.mp3"/>
+    </audio> -->
+     <!-- <audio src="music.mp3" autoplay></audio> -->
+      <p class ="club"><b>TNO Coding Club</b></p>
+
+      <div id="buttons">
+          <input type="button" value="FANCY MODE" id="huebutton">
+          <input type="button" value="GREY" id="graybutton"/>
+          <input type="button" value="INVERT" id="invertbutton"/>
+          <input type="button" value="CONTRAST" id="contrastbutton"/>
+          <input type="button" value="HUE" id="sepiabutton"/>
+     </div>
+
+     <p class="instruction"><b>Press "FANCY MODE" "GREY" "INVERT" "CONTRAST" "HUE" to change your filter<br>Use 'w' 'a' 's' 'd' to move up, left, down, right</b></p>
+     <p class="thanks">Special thanks: Jason, Esther, Stacy, Yining</p>
+     <p class="made">Made by Rae / Marcel</p>
+
+
+     <video id="myvideo" width="200" height="150" ></video>
+     <canvas id="mycanvas" width="200" height="150"></canvas>
+
+  </body>
+</html>

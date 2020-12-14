@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Digital Ocean</title>
+
+    <script type="text/javascript">
+      alert("Welcome to Digital Ocean, please enjoy being a bubble.\r\nInstructions:\r\nMove your bubble by moving your face\r\nTry to chase others' bubbles and overlap on them\r\nOpen your mouth to vomit something");
+    </script>
+
+
+    <!-- import libraries -->
+    <script src="lib/simplepeer.min.js"></script>
+    <script src="lib/fisheye.js"></script>
+    <script src="lib/face-api.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="lib/p5.min.js"></script>
+
+    <!-- scripts -->
+    <script src="script.js"></script>
+    <script src="bubble.js"></script>
+    <script src="background.js"></script>
+    <script src="particle.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+        /*         background-color: black; */
+/*         background-image: url("https://cdn.glitch.com/61822e8c-6341-4a03-81be-ffc327f2f144%2Fthumbnails%2F01.jpg?1603028816148");
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover; */
+      }
+
+      video {
+        display: none;
+      }
+
+      .bubble {
+        position: absolute;
+        height: 200px;
+        width: 200px;
+        opacity: 0.9;
+      }
+
+      .bubble > img {
+        transform: translateY(-204px);
+        height: 200px; 
+        width: 200px;
+        z-index: 10;
+      }
+
+      .bubble > canvas {
+        border-radius: 50%;
+        transform: rotateY(180deg);
+        z-index: 1;
+      }
+
+      .bubble.rotating > canvas {
+        animation: rotate 4s infinite linear;
+      }
+
+      @keyframes rotate {
+        0% {
+          transform: rotateY(180deg) rotate(0deg);
+        }
+        100% {
+          transform: rotateY(180deg) rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <video id="myvideo" muted></video>
+  </body>
+</html>
